@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:atividade_8/services/auth_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -8,23 +10,65 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final TextEditingController _userController = TextEditingController();
+  // intância para o serviço de identificação
+  final AuthService _authService = AuthService();
+
+  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  void _login() {
-    String user = _userController.text;
-    String password = _passwordController.text;
+  bool _isLoading = false;
 
-    if (user == "admin" && password == "1234") {
-      Navigator.pushReplacementNamed(context, '/home');
-    } else {
+  void _handleLogin() async {
+    if (!mounted) return;
+
+    String email = _emailController.text.trim();
+    String password = _passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Falha no login! Usuário ou senha incorretos."),
-          backgroundColor: Colors.red,
-        ),
+        const SnackBar(content: Text('Por favor, preencha e-mail e senha.')),
       );
+      return;
     }
+
+    setState(() {
+      _isLoading = true; // Inicia o indicador de progresso
+    });
+
+    try {
+      await _authService.signInWithEmailAndPassword(email, password);
+    
+    } on FirebaseAuthException catch (e) {
+      String message;
+      switch(e.code) {
+        case 'user-not-found':
+          message = 'Nenhum usuário encontrado para este e-mail.';
+          break;
+        case 'wrong-password':
+          message = 'Senha incorreta. Tente novamente.';
+          break;
+        case 'invalid-email':
+          message = 'O formato do e-mail é inválido.';
+          break;
+        default:
+          message = 'Ocorreu um erro. Tente novamente mais tarde.';
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message)),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Ocorreu um erro inesperado: $e')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+
   }
 
   @override
@@ -54,7 +98,7 @@ class _LoginPageState extends State<LoginPage> {
 
               // Campo Usuário
               TextField(
-                controller: _userController,
+                controller: _emailController,
                 decoration: InputDecoration(
                   prefixIcon: const Icon(Icons.person),
                   filled: true,
@@ -87,7 +131,7 @@ class _LoginPageState extends State<LoginPage> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: _login,
+                  onPressed: _handleLogin,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blueGrey[800],
                     padding: const EdgeInsets.symmetric(vertical: 16),
