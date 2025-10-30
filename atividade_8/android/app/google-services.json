@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "772037827019",
+    "project_id": "fir-8-e7ecb",
+    "storage_bucket": "fir-8-e7ecb.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:772037827019:android:105efd6cae3eb6d5423e4e",
+        "android_client_info": {
+          "package_name": "com.example.atividade_8"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA-tANbJSs4c4IIZIEdriOICIixPfHgONg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
